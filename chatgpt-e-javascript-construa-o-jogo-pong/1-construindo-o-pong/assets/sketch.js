@@ -6,6 +6,7 @@ let paddleHeight = 80;
 let ballSize = 15;
 let ballSpeedX;
 let ballSpeedY;
+let borderThickness = 5;
 
 function setup() {
     createCanvas(600, 400);
@@ -24,6 +25,10 @@ function draw() {
     // Draw ball
     ellipse(ball.x, ball.y, ballSize);
 
+    // Draw top and bottom borders
+    rect(0, 0, width, borderThickness); // Top border
+    rect(0, height - borderThickness, width, borderThickness); // Bottom border
+
     // Player paddle movement
     if (keyIsDown(UP_ARROW)) {
         playerPaddle.y -= 5;
@@ -33,14 +38,14 @@ function draw() {
     }
 
     // Constrain player paddle to canvas
-    playerPaddle.y = constrain(playerPaddle.y, 0, height - paddleHeight);
+    playerPaddle.y = constrain(playerPaddle.y, borderThickness, height - paddleHeight - borderThickness);
 
     // Ball movement
     ball.x += ballSpeedX;
     ball.y += ballSpeedY;
 
-    // Ball collision with top and bottom walls
-    if (ball.y < 0 || ball.y > height) {
+    // Ball collision with top and bottom borders
+    if (ball.y - ballSize / 2 < borderThickness || ball.y + ballSize / 2 > height - borderThickness) {
         ballSpeedY *= -1;
     }
 
@@ -64,15 +69,18 @@ function draw() {
         resetBall();
     }
 
-    // Move computer paddle toward random position
-    if (computerPaddle.y < computerTargetY) {
-        computerPaddle.y += 3;
-    } else if (computerPaddle.y > computerTargetY) {
-        computerPaddle.y -= 3;
+    // Intelligent movement for computer paddle
+    let speed = 4; // Base speed for the computer paddle
+    if (abs(computerPaddle.y + paddleHeight / 2 - ball.y) > 10) { // Move only if ball is far enough
+        if (computerPaddle.y + paddleHeight / 2 < ball.y) {
+            computerPaddle.y += speed;
+        } else if (computerPaddle.y + paddleHeight / 2 > ball.y) {
+            computerPaddle.y -= speed;
+        }
     }
 
     // Constrain computer paddle to canvas
-    computerPaddle.y = constrain(computerPaddle.y, 0, height - paddleHeight);
+    computerPaddle.y = constrain(computerPaddle.y, borderThickness, height - paddleHeight - borderThickness);
 }
 
 function resetBall() {
@@ -81,7 +89,6 @@ function resetBall() {
     ballSpeedY = random(2, 3) * (random(1) > 0.5 ? 1 : -1);
 }
 
-let computerTargetY;
 function moveComputerPaddle() {
-    computerTargetY = random(height - paddleHeight);
+    // Set computer target to ball's position
 }
